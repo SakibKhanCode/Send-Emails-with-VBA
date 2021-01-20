@@ -1,0 +1,39 @@
+Sub SendSheet()
+
+    Dim OutApp As Object
+    Dim OutMail As Object
+    Dim strbody As String
+    
+    Dim NewFileName As String
+    'Creating file to be emailed out
+    NewFileName = ActiveSheet.Name & ".xlsx"
+    
+    ActiveSheet.Copy
+    ActiveWorkbook.SaveAs NewFileName, FileFormat:=xlOpenXMLWorkbook
+    ActiveWorkbook.Close False
+    
+    Set OutApp = CreateObject("Outlook.Application")
+    Set OutMail = OutApp.CreateItem(0)
+
+    strbody = "<H3><B>Please see the attached file for today's trades.</B></H3>" & _
+              "Let me know if there are any issues.<br>" & _
+              "<br><br><B>Thank you</B>"
+
+    On Error Resume Next
+    'Email details
+    With OutMail
+        .Display
+        .To = "emailA@hotmail.com; emailB@gmail.com"
+        .CC = ""
+        .BCC = ""
+        'The subject in the email will be the value inside the K2 cell of whichever worksheet you'd like. Feel free to change this.
+        .Subject = Worksheets("YourWorkSheetNameHere").Range("K2").Value
+        .Attachments.Add NewFileName
+        .HTMLBody = strbody & "<br>" & .HTMLBody
+        .Send
+    End With
+
+    On Error GoTo 0
+    Set OutMail = Nothing
+    Set OutApp = Nothing
+End Sub
